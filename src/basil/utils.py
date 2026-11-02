@@ -185,3 +185,62 @@ def slice_mask_flat_comb_new(new_comb, mask, slices):
                         comb_sliced_list.append(float(new_comb_copy[i][j][k]))
 
     return np.asanyarray(comb_sliced_list)
+    
+def reshape_comb(comb, dataset_basil):
+    geom = dataset_basil.geoms['geom']
+    
+    # Reshaping the combinatory list -- for stat_array
+    new_comb = []
+    # Loop over energies
+    for i in range(len(comb)):
+        en_matrix = []
+        # Loop over spatial bins
+        k = 0
+        while k < geom.data_shape[-1]*geom.data_shape[-2]:
+            row = []
+            row_likesig = []
+            row_likebkg = []
+            for j in range(geom.data_shape[-2]):
+                if len(comb[i][k+j]) == 1:
+                    row.append([comb[i][k+j][0]])
+                else:
+                    row.append(comb[i][k+j])
+            k+=geom.data_shape[-2]
+            en_matrix.append(row)
+        new_comb.append(en_matrix)
+    
+    
+    new_comb_copy = copy.deepcopy(new_comb)
+    indx_mask = np.argwhere(dataset_basil.mask.data == False)
+    for i in range(len(indx_mask)):
+        indx_ = indx_mask[i]
+        new_comb_copy[indx_[0]][indx_[1]][indx_[2]] = -1
+    
+    
+    new_comb_masked = []
+    for i in range(len(new_comb_copy)):
+        en_matrix = []
+        for j in range(len(new_comb_copy[i])):
+            row = []
+            for k in range(len(new_comb_copy[i][j])):
+                if new_comb_copy[i][j][k] != -1:
+                    row.append(new_comb_copy[i][j][k])
+            if len(row) > 0:
+                en_matrix.append(row)
+        if len(en_matrix) > 0:
+            new_comb_masked.append(en_matrix)
+    
+    # Flattening the combinatory list for stat_sum()
+    flat_comb_masked = []
+    # Loop over energies
+    for i in range(len(new_comb_masked)):
+        for j in range(len(new_comb_masked[i])):
+            for k in range(len(new_comb_masked[i][j])):
+                if np.isscalar(new_comb_masked[i][j][k]):
+                    flat_comb_masked.append(float(new_comb_masked[i][j][k]))
+                else:
+                    for l in range(len(new_comb_masked[i][j][k])):
+                        flat_comb_masked.append(float(new_comb_masked[i][j][k][l]))
+
+    return new_comb, flat_comb_masked
+

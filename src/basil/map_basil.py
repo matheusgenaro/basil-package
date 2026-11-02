@@ -1,11 +1,13 @@
 from gammapy.datasets import MapDataset 
 from gammapy.irf import EDispKernelMap, EDispMap, PSFMap
 from gammapy.utils.fits import HDULocation
+from gammapy.utils.scripts import make_name
 
 from .utils import slice_mask_flat_comb_new
 from .stats import BASiL_3D_logsum
+from .fit_statistics_cython import basil_logsum_cython
 import numpy as np
-s
+
 __all__ = ["MapDatasetBASiL"]
 
 
