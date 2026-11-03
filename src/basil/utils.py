@@ -1,3 +1,8 @@
+# Licensed under a 3-clause BSD style license - see LICENSE and LICENSE-Gammapy
+#
+# Copyright (c) 2026, Matheus Genaro Dantas Xavier
+# See LICENSE for licensing information.
+
 import numpy as np
 import math
 import copy
@@ -5,7 +10,7 @@ import pickle
 
 # 1D analysis ---------------------------------------------
 
-def basil_like_general_v5(n_on, mu_sig, energy, dict_logprod):
+def basil_posterior(n_on, mu_sig, energy, dict_logprod):
     '''
        Compute the log of the marginal likelihood (posterior of mu_sig)
        Not yet fully implemented for multiple event variables.
@@ -59,7 +64,6 @@ class basil_factors:
 
             N = n_on + n_off
 
-            # log(f_0) = log((N)! / (n_off)!)
             log_f = math.lgamma(N + 1) - math.lgamma(n_off + 1)
 
             size = n_on + 1
@@ -139,31 +143,6 @@ class basil_factors:
                      
         return
         
-    def run_stacked(self, label_factors, like_sig, like_bkg):
-        n_on = self.n_on
-        n_off = self.n_off
-        alpha = self.alpha
-        energy = self.energy
-    
-        for i in range(len(n_on)):
-            if n_on[i][0][0] > 0:
-                logfactor = self.compute_log_factor(n_on[i][0][0], n_off[i][0][0], alpha[i][0][0])
-    
-                logcomb = self.combinatory_log(like_bkg[i], like_sig[i]) 
-                logprod = np.array(logcomb) + np.array(logfactor)
-
-            else:
-                like_sig_ = np.ones(int(n_on[i][0][0]))
-                like_bkg_ = np.ones(int(n_on[i][0][0]))
-                logcomb = self.combinatory_log(like_bkg_, like_sig_)
-                logprod = np.array(logcomb) #+ np.array(logfactor)
-            
-            if n_on[i][0][0] > 0:
-                self.write_pickle(logfactor, '/home/matheus/Documents/BASiL/dist/factors/'+label_factors+'/factor_bin'+str(energy[i])+'.pkl')
-            self.write_pickle(logcomb, '/home/matheus/Documents/BASiL/dist/factors/'+label_factors+'/comb_bin'+str(energy[i])+'.pkl')
-            self.write_pickle(logprod, '/home/matheus/Documents/BASiL/dist/factors/'+label_factors+'/prod_bin'+str(energy[i])+'.pkl')
-            
-        return
 
 # 3D analysis ---------------------------------------------
 

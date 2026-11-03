@@ -1,4 +1,19 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
+# Licensed under a 3-clause BSD style license - see LICENSE and LICENSE-Gammapy
+#
+# This file contains original code and code adapted from Gammapy.
+#
+# Portions of this file are derived from Gammapy:
+# https://github.com/gammapy/gammapy
+#
+# The original Gammapy code is licensed under the BSD 3-Clause License.
+# Copyright notices and license conditions applicable to that code
+# are preserved in accordance with the original license.
+# See LICENSE-Gammapy for licensing information.
+#
+# Modifications and additional code:
+# Copyright (c) 2026, Matheus Genaro Dantas Xavier
+# See LICENSE for licensing information.
+
 # cython: language_level=3
 import numpy as np
 from libc.math cimport exp, log
@@ -6,7 +21,7 @@ from gammapy.stats.fit_statistics_cython import TRUNCATION_VALUE
 cimport numpy as np
 cimport cython
 
-cdef double stable_logsum_binomial(
+cdef double logsum_binomial(
     int N,
     double logs,
     double logb,
@@ -20,38 +35,18 @@ cdef double stable_logsum_binomial(
         double m
         double s
 
-    #
-    # First pass: find max
-    #
-    m = (
-        logcomb[offset]
-        + N * logb
-    )
+    # Find max
+    m = logcomb[offset] + N * logb
 
     for j in range(1, N + 1):
-
-        val = (
-            logcomb[offset + j]
-            + j * logs
-            + (N - j) * logb
-        )
-
+        val = logcomb[offset + j] + j * logs + (N - j) * logb
         if val > m:
             m = val
 
-    #
-    # Second pass: exp sum
-    #
+    # Exp sum
     s = 0.0
-
     for j in range(N + 1):
-
-        val = (
-            logcomb[offset + j]
-            + j * logs
-            + (N - j) * logb
-        )
-
+        val = logcomb[offset + j] + j * logs + (N - j) * logb
         s += exp(val - m)
 
     return m + log(s)
@@ -75,6 +70,11 @@ def basil_logsum_cython(long[:] counts,
         Predicted background counts array.
     comb : `~numpy.ndarray`
         Combinatory factor array.
+        
+    Returns
+    -------
+    2*sum : -2*ln[p(-)], where p(-) is the posterior
+            probability distribution for BASiL 3D.
     """
     cdef np.float_t sum = 0
     cdef np.float_t npr, s, b
@@ -99,7 +99,7 @@ def basil_logsum_cython(long[:] counts,
             elif (s != 0) and (b == 0):
                 sum += npr - (logcomb[i+k+N] + N*log(s))
             else:
-                sum += npr - stable_logsum_binomial(N, log(s), log(b), logcomb, i+k)
+                sum += npr - logsum_binomial(N, log(s), log(b), logcomb, i+k)
                 
             k += N
 

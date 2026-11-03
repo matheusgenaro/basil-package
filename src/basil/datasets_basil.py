@@ -1,6 +1,4 @@
-# Licensed under a 3-clause BSD style license - see LICENSE.rst
-
-# Copyright (c) 2026, Your Name
+# Licensed under a 3-clause BSD style license - see LICENSE and LICENSE-Gammapy
 #
 # This file contains original code and code adapted from Gammapy.
 #
@@ -10,15 +8,15 @@
 # The original Gammapy code is licensed under the BSD 3-Clause License.
 # Copyright notices and license conditions applicable to that code
 # are preserved in accordance with the original license.
+# See LICENSE-Gammapy for licensing information.
 #
 # Modifications and additional code:
-# Copyright (c) 2026, Your Name
-#
-# See LICENSE and THIRD_PARTY_NOTICES.md for licensing information.
+# Copyright (c) 2026, Matheus Genaro Dantas Xavier
+# See LICENSE for licensing information.
 
 from gammapy.datasets import SpectrumDatasetOnOff
 from gammapy.utils.scripts import make_name
-from .utils import basil_like_general_v5
+from .utils import basil_posterior
 import numpy as np
 
 
@@ -26,10 +24,13 @@ __all__ = ["SpectrumDatasetOnOffBASiL"]
 
 
 class SpectrumDatasetOnOffBASiL(SpectrumDatasetOnOff):
-    """New dataset type that includes the Bayesian approach for
-    computing the posterior of the signal in On/Off analysis.
+    """
+    New dataset type that includes the BASiL approach for
+    computing the posterior of the signal in On/Off analysis, through
+    the modified `stat_array()`
     
-    	Class structure and slice_by_idx() method extracted from Gammapy code.
+    	Class structure and slice_by_idx() method extracted from Gammapy.
+    	
     """
     def __init__(
             self,
@@ -70,7 +71,7 @@ class SpectrumDatasetOnOffBASiL(SpectrumDatasetOnOff):
         Likelihood per bin in BASiL approach given the current model parameters
         """
         mu_sig = self.npred_signal().data
-        on_stat_ = basil_like_general_v5(
+        on_stat_ = basil_posterior(
             n_on=self.counts.data,
             mu_sig=mu_sig,
             energy=self.counts.geom.axes["energy"].center.value,

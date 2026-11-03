@@ -1,3 +1,19 @@
+# Licensed under a 3-clause BSD style license - see LICENSE and LICENSE-Gammapy
+#
+# This file contains original code and code adapted from Gammapy.
+#
+# Portions of this file are derived from Gammapy:
+# https://github.com/gammapy/gammapy
+#
+# The original Gammapy code is licensed under the BSD 3-Clause License.
+# Copyright notices and license conditions applicable to that code
+# are preserved in accordance with the original license.
+# See LICENSE-Gammapy for licensing information.
+#
+# Modifications and additional code:
+# Copyright (c) 2026, Matheus Genaro Dantas Xavier
+# See LICENSE for licensing information.
+
 from gammapy.stats.fit_statistics_cython import TRUNCATION_VALUE
 import numpy as np
 import math
