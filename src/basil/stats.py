@@ -18,7 +18,7 @@ from gammapy.stats.fit_statistics_cython import TRUNCATION_VALUE
 import numpy as np
 import math
 
-from .utils import log_sum_P_sN_mod
+from .utils import log_sum
 
 __all__ = ["BASiL_3D_logsum"]
 
